@@ -38,6 +38,7 @@ class ModuleController extends Controller {
 			if( ! array_key_exists('repo_link', $module)) continue;
 
 			$jsonData  = $this->installation->get_repo_data($module['repo_link']);
+			if( ! $jsonData) continue;
 
 			if($module['version'] < $jsonData->version) $module['need_update'] = true;
 		}
