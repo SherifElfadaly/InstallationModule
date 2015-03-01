@@ -14,5 +14,8 @@ Route::group(['prefix' => 'Installation'], function() {
 	Route::get('/', function() {
 	});
 
-	Route::controller('modules', 'ModuleController');
+	Route::controllers([
+		'modules' => 'ModuleController',
+		'modulesettings' => 'ModuleSettingsController',
+		]);
 });

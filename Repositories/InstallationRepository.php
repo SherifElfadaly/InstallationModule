@@ -1,10 +1,14 @@
 <?php namespace App\Modules\Installation\Repositories;
 
 use App\Modules\Installation\CoreModule;
-use Module;
+use App\Modules\Installation\Traits\CoreModuleTrait;
+use App\Modules\Installation\Traits\SettingTrait;
 
 class InstallationRepository
 {
+	use CoreModuleTrait;
+	use SettingTrait;
+
 	/**
 	 * Clone module form a github repository.
 	 * @param  string $link Github repository link 
@@ -132,74 +136,6 @@ class InstallationRepository
 			return ['oldVersion' => $coreModule->module_version , 'newVersion' => $jsonData->version];
 		}
 		return false;
-	}
-
-	/**
-	 * Get the module.json file content.
-	 * @param  string $moduleName The slug of the module.
-	 * @return array module data.
-	 */
-	public function getModuleProperties($moduleName)
-	{
-		return Module::getProperties($moduleName);
-	}
-
-	/**
-	 * Save the newly installed module to
-	 * storage.
-	 * @param  array $data Module data
-	 * @return void.
-	 */
-	public function saveModuleData($data)
-	{
-		CoreModule::create($data);
-	}
-
-	/**
-	 * Save the updated module to storage.
-	 * @param  string $slug The slug of the module.
-	 * @param  array $data Module data
-	 * @return void.
-	 */
-	public function updateModuleData($slug, $data)
-	{
-		CoreModule::where('module_key', '=', $slug)->update($data);
-	}
-
-	/**
-	 * Get all installed modules.
-	 * @return array Modules data.
-	 */
-	public function getAllModules()
-	{
-		$modulesData = array();
-		CoreModule::all()->each(function($module) use (&$modulesData){
-			$modulesData[$module->module_key] = Module::getProperties($module->module_key);
-		});
-		return $modulesData;
-	}
-	 /**
-	  * Enable or disaple module.
-	  * @param  string $slug The slug of the module.
-	  * @return void
-	  */
-	public function changeEnabled($slug)
-	{
-		Module::isEnabled($slug) ? Module::disable($slug) : Module::enable($slug);
-	}
-
-	/**
-	 * Delete module form storage and
-	 * unistall it.
-	 * @param  string $slug The slug of the module.
-	 * @return void
-	 */
-	public function deleteModule($slug)
-	{
-		$coreModule = CoreModule::where('module_key', '=', $slug)->delete();
-		\Artisan::call('module:migrate-reset', ['module' => $slug]);
-
-		$this->removeModelDirectory($slug);
 	}
 
 	/**

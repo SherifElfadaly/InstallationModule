@@ -42,7 +42,7 @@ class ModuleController extends Controller {
 
 			if($module['version'] < $jsonData->version) $module['need_update'] = true;
 		}
-		return view('Installation::modules', compact('modules'));
+		return view('Installation::modules.modules', compact('modules'));
 	}
 
 	/**
@@ -73,7 +73,7 @@ class ModuleController extends Controller {
 	 */
 	public function getCreate()
 	{	
-		return view('Installation::addmodule');
+		return view('Installation::modules.addmodule');
 	}
 
 	/**

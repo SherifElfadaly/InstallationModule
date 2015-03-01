@@ -59,6 +59,14 @@
 						Update
 						</a>
 						@endif
+
+						<a 
+						class="btn btn-default" 
+						href='{{ url("/Installation/modulesettings/show/{$module['slug']}") }}' 
+						role="button"
+						>
+						Settings
+						</a>
 					</td>
 				</tr>
 				@endforeach
