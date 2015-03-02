@@ -41,7 +41,7 @@
 							<span class="input-group-addon">@</span>
 							<input type="text" class="form-control" name="repo_link" id="repo_link">
 						</div>
-						<small>https://github.com/[YourGitUserName]/[YourRepoName].git</small>
+						<small>https://github.com/[GitUserName]/[RepoName].git</small>
 					</div>
 				</div>
 			</div>

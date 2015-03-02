@@ -48,7 +48,7 @@
 				</p>
 				<div class="well sidebar-nav">
 					<ul class="nav">
-						<li>Modules </li>
+						<li>Modules</li>
 						<li class="active"><a href="{{ url('/Installation/modules') }}">All Modules</a></li>
 						<li><a href="{{ url('/Installation/modules/create') }}">Add Module</a></li>
 					</ul>

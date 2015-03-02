@@ -147,13 +147,13 @@ class InstallationRepository
 	public function removeModelDirectory($slug, $path = false)
 	{
 		if ($slug) $path  = app_path('Modules/') . $slug . '/';
-		$files = glob($path . '*', GLOB_MARK);
+		$files = glob($path . '{,.git}*', GLOB_BRACE);
 
 		foreach ($files as $file) 
 		{
 			if (is_dir($file))
 			{
-				$this->removeModelDirectory(false, $file);
+				$this->removeModelDirectory(false, $file . '/');
 			}
 			else
 			{
