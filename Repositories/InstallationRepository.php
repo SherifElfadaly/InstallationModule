@@ -31,13 +31,13 @@ class InstallationRepository
 		$git = new \PHPGit\Git();
 		if($version === true)
 		{
-			$git->clone($link, app_path('Modules/') . $jsonData->slug);
+			$git->clone($link, app_path('Modules/') . ucfirst($jsonData->slug));
 			$this->saveModuleData($module_data);
 		}
 		elseif(is_array($version))
 		{
 			$this->removeModelDirectory($jsonData->slug);
-			$git->clone($link, app_path('Modules/') . $jsonData->slug);
+			$git->clone($link, app_path('Modules/') . ucfirst($jsonData->slug));
 
 			$this->updateModuleData($jsonData->slug, $module_data);
 		}
@@ -146,7 +146,7 @@ class InstallationRepository
 	 */
 	public function removeModelDirectory($slug, $path = false)
 	{
-		if ($slug) $path  = app_path('Modules/') . $slug . '/';
+		if ($slug) $path  = app_path('Modules/') . ucfirst($slug) . '/';
 		$files = glob($path . '{,.git}*', GLOB_BRACE);
 
 		foreach ($files as $file) 
