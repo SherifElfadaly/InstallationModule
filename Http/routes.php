@@ -11,12 +11,8 @@
 |
 */
 Route::group(['prefix' => 'Installation'], function() {
-	
-	Route::get('/', function() {
-	});
-
 	Route::controllers([
-		'modules'        => 'ModuleController',
 		'modulesettings' => 'ModuleSettingsController',
+		'/'              => 'ModuleController',
 		]);
 });

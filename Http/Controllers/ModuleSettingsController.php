@@ -51,11 +51,13 @@ class ModuleSettingsController extends Controller {
 	 */
 	public function postCreate(Request $request, $id)
 	{
+		$errors = array();
 		foreach ($request->input('key') as $key) 
 		{
 			if (strlen($key) == 0) 
 			{
-				return redirect()->back()->withErrors("Key Required");
+				$errors[] = "Key Required";
+				break;
 			}
 		}
 
@@ -63,9 +65,12 @@ class ModuleSettingsController extends Controller {
 		{
 			if (strlen($value) == 0) 
 			{
-				return redirect()->back()->withErrors("Value Required");
+				$errors[] = "Value Required";
+				break;
 			}
 		}
+		if ( ! empty($errors)) 	return redirect()->back()->withErrors($errors);
+
 		$data    = $this->installation->prepareSettingData($request->all());
 		$profile = $this->installation->createSetting($data, $id);
 

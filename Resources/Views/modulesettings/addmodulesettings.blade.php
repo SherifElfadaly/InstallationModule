@@ -1,4 +1,4 @@
-@extends('Installation::app')
+@extends('app')
 
 @section('content')
 
@@ -32,15 +32,15 @@
 					<button type="submit" id="setting_submit" class="btn btn-block btn-default">Submit</button>
 				</div>
 				<div class="col-sm-3 col-sm-offset-1">
-					<a id="setting_add" class="btn btn-default">Add</a>
-					<a id="setting_remove" class="btn btn-default">Remove</a>
+					<a id="add" class="btn btn-default">Add</a>
+					<a id="remove" class="btn btn-default">Remove</a>
 				</div>	
 			</div>
 
 			<div class="row"><br></div>
 
 			<div class="row">
-				<div class="col-sm-8 setting_data">
+				<div class="col-sm-8 data">
 					<div class="form-group">
 						<label for="inputEmail3">Key</label>
 						<input 

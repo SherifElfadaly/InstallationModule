@@ -12,4 +12,14 @@ class CoreModule extends Model {
 	{
 		return $this->hasMany('App\Modules\Installation\CoreSetting', 'module_id');
 	}
+
+	public static function boot()
+	{
+		parent::boot();
+
+		CoreModule::deleting(function($module)
+		{
+			$module->coreSettings()->delete();
+		});
+	}
 }
