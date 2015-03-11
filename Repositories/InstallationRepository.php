@@ -70,10 +70,10 @@ class InstallationRepository
 
 			if($version === true) $this->saveModuleData($module_data);
 			if(is_array($version)) $this->updateModuleData($moduleProperties['slug'], $module_data);
+			
+			unlink($file->getRealPath());
+			\Artisan::call('module:migrate', ['module' => $moduleProperties['slug']]);
 		}
-		
-		unlink($file->getRealPath());
-		\Artisan::call('module:migrate', ['module' => $moduleProperties['slug']]);
 
 		return $version;
 	}

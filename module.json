@@ -1,8 +1,8 @@
 {
-	"name": "Installation",
-	"slug": "Installation",
-	"version": "1.1",
-	"description": "This is the description for the Installation module.",
-	"repo_link": "https://github.com/SherifElfadaly/MarvelLanguage.git",
-	"enabled": true
+    "name": "Installation",
+    "slug": "Installation",
+    "version": "1.1",
+    "description": "This is the description for the Installation module.",
+    "repo_link": "https:\/\/github.com\/SherifElfadaly\/MarvelInstallation.git",
+    "enabled": true
 }

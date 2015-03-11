@@ -20,6 +20,7 @@ class ModuleSettingsController extends Controller {
 	public function __construct(InstallationRepository $installation)
 	{
 		$this->installation = $installation;
+		$this->middleware('AclAuthenticate');
 	}
 
 	/**

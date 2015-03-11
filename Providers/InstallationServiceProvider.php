@@ -21,6 +21,12 @@ class InstallationServiceProvider extends ServiceProvider
 		// methods or service providers to keep the code more focused and granular.
 		App::register('App\Modules\Installation\Providers\RouteServiceProvider');
 
+		//Bind InstallationRepository Facade to the IoC Container
+		App::bind('InstallationRepository', function()
+		{
+			return new App\Modules\Installation\Repositories\InstallationRepository;
+		});
+
 		$this->registerNamespaces();
 	}
 

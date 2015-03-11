@@ -32,7 +32,7 @@
 					<td>
 						<a 
 						class="btn btn-default" 
-						href='{{ url("/Installation/modules/enabled/{$module['slug']}") }}' 
+						href='{{ url("/Installation/enabled/{$module['slug']}") }}' 
 						role="button"
 						>
 						@if($module['enabled'])
@@ -44,7 +44,7 @@
 
 						<a 
 						class="btn btn-default" 
-						href='{{ url("/Installation/modules/delete/{$module['slug']}") }}' 
+						href='{{ url("/Installation/delete/{$module['slug']}") }}' 
 						role="button"
 						>
 						Delete
@@ -53,7 +53,7 @@
 						@if($module['need_update'])
 						<a 
 						class="btn btn-default" 
-						href='{{ url("/Installation/modules/update/{$module['slug']}") }}' 
+						href='{{ url("/Installation/update/{$module['slug']}") }}' 
 						role="button"
 						>
 						Update
