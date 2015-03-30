@@ -19,6 +19,7 @@
 					<th>Module Name</th>
 					<th>Module Description</th>
 					<th>Module Version</th>
+					<th>Module Type</th>
 					<th>Options</th>
 				</tr>
 			</thead>
@@ -29,6 +30,7 @@
 					<td>{{ $module['name'] }}</td>
 					<td>{{ $module['description'] }}</td>
 					<td>{{ $module['version'] }}</td>
+					<td>{{ $module['type'] }}</td>
 					<td>
 						<a 
 						class="btn btn-default" 

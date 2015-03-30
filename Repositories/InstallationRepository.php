@@ -27,6 +27,7 @@ class InstallationRepository
 		$module_data['module_name']    = $jsonData->name;
 		$module_data['module_key']     = $jsonData->slug;
 		$module_data['module_version'] = $jsonData->version;
+		$module_data['module_type']    = $jsonData->type;
 
 		$git = new \PHPGit\Git();
 		if($version === true)
@@ -67,6 +68,7 @@ class InstallationRepository
 			$module_data['module_name']    = $moduleProperties['name'];
 			$module_data['module_key']     = $moduleProperties['slug'];
 			$module_data['module_version'] = $moduleProperties['version'];
+			$module_data['module_type']    = $moduleProperties['type'];
 
 			if($version === true) $this->saveModuleData($module_data);
 			if(is_array($version)) $this->updateModuleData($moduleProperties['slug'], $module_data);
@@ -89,7 +91,7 @@ class InstallationRepository
 		$zip    = new \ZipArchive;
 		$result = $zip->open($modulePath);
 
-		$zip->extractTo(app_path('Modules/'));
+		$zip->extractTo(app_path('Modules'));
 		$zip->close();
 	}
 
@@ -128,7 +130,12 @@ class InstallationRepository
 		$coreModule = CoreModule::where('module_key', '=', $jsonData->slug)->first();
 
 		if(is_null($coreModule))
-		{
+		{	
+			if($jsonData->type = 'theme')
+			{
+				$this->disapleAllThemes();
+			}
+
 			return true;
 		}
 		elseif ($coreModule->module_version < $jsonData->version) 

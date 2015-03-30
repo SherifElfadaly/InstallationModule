@@ -15,10 +15,13 @@ class CreateCoreSettingsTable extends Migration
 		if ( ! Schema::hasTable('core_settings'))
 		{
 			Schema::create('core_settings', function(Blueprint $table) {
-				$table->increments('id');
-				$table->string('key');
+				$table->bigIncrements('id');
+				$table->string('key', 100)->index();
 				$table->text('value');
-				$table->integer('module_id');
+
+				$table->bigInteger('module_id')->unsigned();
+				$table->foreign('module_id')->references('id')->on('core_modules');
+				
 				$table->timestamps();
 			});
 		}

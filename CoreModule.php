@@ -5,7 +5,7 @@ use Illuminate\Database\Eloquent\Model;
 class CoreModule extends Model {
 
 	protected $table    = 'core_modules';
-	protected $fillable = ['module_name', 'module_key', 'module_version'];
+	protected $fillable = ['module_name', 'module_key', 'module_version', 'module_type'];
 	protected $catsts   = ['module_version' => 'boolean'];
 
 	public function coreSettings()

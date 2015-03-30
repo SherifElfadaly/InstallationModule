@@ -12,7 +12,7 @@ trait CoreModuleTrait{
 	public function getAllModules()
 	{
 		$modulesData = array();
-		CoreModule::all()->each(function($module) use (&$modulesData){
+		CoreModule::with('coreSettings')->get()->each(function($module) use (&$modulesData){
 			$modulesData[$module->module_key] = Module::getProperties($module->module_key);
 		});
 		return $modulesData;
@@ -25,6 +25,19 @@ trait CoreModuleTrait{
 	public function getModule($slug)
 	{
 		return CoreModule::where('module_key', '=', $slug)->first();
+	}
+
+	/**
+	 * Get the enabled theme data from storage.
+	 * @return Module data.
+	 */
+	public function getActiveTheme()
+	{
+		$activeTheme = false;
+		CoreModule::where('module_type', '=', 'theme')->get()->each(function($theme) use (&$activeTheme){
+			if(Module::isEnabled($theme->module_key)) $activeTheme = $theme;
+		});
+		return $activeTheme;
 	}
 
 	/**
@@ -46,7 +59,7 @@ trait CoreModuleTrait{
 	 */
 	public function updateModuleData($slug, $data)
 	{
-		CoreModule::where('module_key', '=', $slug)->update($data);
+		$this->getModule($slug)->update($data);
 	}
 
 	/**
@@ -57,7 +70,7 @@ trait CoreModuleTrait{
 	 */
 	public function deleteModule($slug)
 	{
-		$coreModule = CoreModule::where('module_key', '=', $slug)->delete();
+		$this->getModule($slug)->delete();
 		\Artisan::call('module:migrate-reset', ['module' => $slug]);
 
 		$this->removeModelDirectory($slug);
@@ -70,7 +83,35 @@ trait CoreModuleTrait{
 	  */
 	public function changeEnabled($slug)
 	{
-		Module::isEnabled($slug) ? Module::disable($slug) : Module::enable($slug);
+		if($this->getModule($slug)->module_type = 'plugin')
+		{
+			Module::isEnabled($slug) ? Module::disable($slug) : Module::enable($slug);
+		}
+	}
+
+	/**
+	  * Set the main theme.
+	  * @param  string $slug The slug of the module.
+	  * @return void
+	  */
+	public function changeTheme($slug)
+	{
+		if($this->getModule($slug)->module_type = 'theme')
+		{
+			$this->disapleAllThemes();
+			Module::enable($slug);
+		}
+	}
+
+	/**
+	  * Disaple All Themes.
+	  * @return void
+	  */
+	public function disapleAllThemes()
+	{
+		CoreModule::where('module_type', '=', 'theme')->get()->each(function($module){
+				Module::disable($module->module_key);
+			});
 	}
 
 	/**

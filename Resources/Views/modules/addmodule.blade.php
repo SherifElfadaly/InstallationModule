@@ -28,26 +28,24 @@
 			<input type="hidden" name="_token" value="{{ csrf_token() }}">
 
 			<div class="form-group">
-				<div class="col-sm-offset-2 col-sm-10">
+				<div class="col-sm-offset-2 col-sm-5">
 					<input type="file" name="module" id="module">
 				</div>
 			</div>
 
 			<div class="form-group">
 				<div class="col-sm-offset-2 col-sm-5">
-					<div class="form-group">
-						<label class="control-label">Or type module link from github</label>
-						<div class="input-group">
-							<span class="input-group-addon">@</span>
-							<input type="text" class="form-control" name="repo_link" id="repo_link">
-						</div>
-						<small>https://github.com/[GitUserName]/[RepoName].git</small>
+					<label class="control-label">Or type module link from github</label>
+					<div class="input-group">
+						<span class="input-group-addon">@</span>
+						<input type="text" class="form-control" name="repo_link" id="repo_link">
 					</div>
+					<small>https://github.com/[GitUserName]/[RepoName].git</small>
 				</div>
 			</div>
-
+			
 			<div class="form-group">
-				<div class="col-sm-offset-2 col-sm-10">
+				<div class="col-sm-offset-2 col-sm-5">
 					<button type="submit" id="user_submit" class="btn btn-default">Submit</button>
 				</div>
 			</div>
