@@ -24,25 +24,19 @@ class ModuleController extends Controller {
 	}
 
 	/**
-	 * Display a listing of the modules
-	 * and check for modules who needs 
+	 * Display a listing of the modules,
+	 * scan for unistalled modules and
+	 * check for modules that need
 	 * updates.
 	 * 
 	 * @return Response
 	 */
 	public function getIndex()
 	{
+		$this->installation->scanModules();
 		$modules = $this->installation->getAllModules();
-		foreach ($modules as &$module) 
-		{
-			$module['need_update'] = false;
-			if( ! array_key_exists('repo_link', $module)) continue;
+		$modules = $this->installation->needUpdate($modules);
 
-			$jsonData  = $this->installation->get_repo_data($module['repo_link']);
-			if( ! $jsonData) continue;
-
-			if($module['version'] < $jsonData->version) $module['need_update'] = true;
-		}
 		return view('Installation::modules.modules', compact('modules'));
 	}
 
@@ -53,14 +47,14 @@ class ModuleController extends Controller {
 	 */
 	public function getUpdate($slug)
 	{
-		$result = $this->installation->cloneModule($this->installation->getModuleProperties($slug)['repo_link']);
-
+		$result  = $this->installation->cloneModule($this->installation->getModuleProperties($slug)['repo_link']);
+		
 		$message = 'Your module already exists and up to date';
 		if (is_array($result)) 
 		{
-			$message = 'Your module had been Updated From ' . $result['oldVersion'] . ' to ' . $result['newVersion'];
+			$message = 'Your module' . $slug . 'had been Updated From ' . $result['oldVersion'] . ' to ' . $result['newVersion'];
 		}
-		elseif ($result = 404)
+		elseif ($result == 404)
 		{
 			$message = "module.json file not found";	
 		}

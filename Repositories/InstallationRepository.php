@@ -199,8 +199,8 @@ class InstallationRepository
 	public function get_repo_data($repoLink)
 	{	
 		$repo_data = explode('/', str_replace('https://github.com/', '', $repoLink));
-		$user      =  $repo_data[0];
-		$repoName  =  str_replace('.git', '', $repo_data[1]);
+		$user      = $repo_data[0];
+		$repoName  = str_replace('.git', '', $repo_data[1]);
 		$repoData  = json_decode($this->get_json("repos/$user/$repoName/contents/module.json"), true);
 
 		if(array_key_exists('message', $repoData) && $repoData['message'] == 'Not Found')

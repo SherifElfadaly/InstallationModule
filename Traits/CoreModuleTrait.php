@@ -123,4 +123,46 @@ trait CoreModuleTrait{
 	{
 		return Module::getProperties($moduleName);
 	}
+
+	/**
+	 * Check if the module or modules need update.
+	 * @param  string $modules The single or array 
+	 * of module object.
+	 * @return array module data.
+	 */
+	public function needUpdate($modules)
+	{
+		foreach ($modules as &$module) 
+		{
+			$module['need_update'] = false;
+			if( ! array_key_exists('repo_link', $module)) continue;
+
+			$jsonData  = $this->get_repo_data($module['repo_link']);
+			if( ! $jsonData) continue;
+
+			if($module['version'] < $jsonData->version) $module['need_update'] = true;
+		}
+		return $modules;
+	}
+
+	/**
+	 * Scan for modules whose data isn't stored in
+	 * storage and store them.
+	 * @return void.
+	 */
+	public function scanModules()
+	{
+		foreach (Module::all() as $module) 
+		{
+			if( ! CoreModule::where('module_key', '=', $module['slug'])->count())
+			{
+				$module_data['module_name']    = $module['name'];
+				$module_data['module_key']     = $module['slug'];
+				$module_data['module_version'] = $module['version'];
+				$module_data['module_type']    = $module['type'];
+
+				$this->saveModuleData($module_data);
+			}
+		}	
+	}
 }
