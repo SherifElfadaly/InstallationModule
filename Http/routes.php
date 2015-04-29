@@ -12,6 +12,7 @@
 */
 Route::group(['prefix' => 'Installation'], function() {
 	Route::controllers([
+		'setup'          => 'SetupController',
 		'modulesettings' => 'ModuleSettingsController',
 		'/'              => 'ModuleController',
 		]);

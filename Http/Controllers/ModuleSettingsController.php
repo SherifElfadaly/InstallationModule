@@ -14,7 +14,7 @@ class ModuleSettingsController extends Controller {
 	protected $installation;
 
 	/**
-	 * Create new ModuleSettingsController instance.
+	 * Create new ModuleSettings instance.
 	 * @param InstallationRepository
 	 */
 	public function __construct(InstallationRepository $installation)
