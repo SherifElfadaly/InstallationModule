@@ -52,7 +52,7 @@ class ModuleController extends Controller {
 		$message = 'Your module already exists and up to date';
 		if (is_array($result)) 
 		{
-			$message = 'Your module' . $slug . 'had been Updated From ' . $result['oldVersion'] . ' to ' . $result['newVersion'];
+			$message = 'Your module ' . $slug . ' had been Updated From ' . $result['oldVersion'] . ' to ' . $result['newVersion'];
 		}
 		elseif ($result == 404)
 		{

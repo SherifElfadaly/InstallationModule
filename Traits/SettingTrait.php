@@ -14,29 +14,44 @@ trait SettingTrait{
 	}
 
 	/**
-	 * prepare setting data for saving
-	 * @param  array $data Module data
-	 * @return array settings.
+	 * Get setting data belongs to specific
+	 * module from storage by it's key and.
+	 * @return setting data.
 	 */
-	public function prepareSettingData($data)
+	public function getSettingValuByKey($key, $module_key)
 	{
-		$settings = array();
-		for ($i = 0 ; $i < count($data['key']) ; $i++) 
-		{ 
-			$settings[] =  new CoreSetting(['key' => $data['key'][$i], 'value' => $data['value'][$i]]);
-		}
-		return $settings;
+		return CoreSetting::where('key', '=', $key)->where('module_key', '=', $module_key)->first()->value;
 	}
 
 	/**
-	 * Save the newly created setting to
-	 * module.
-	 * @param  array $data Module data
-	 * @return void.
+	 * Get setting data from storage related
+	 * to a given module.
+	 * @return setting data.
 	 */
-	public function createSetting($data, $moduleId)
+	public function getModuleSettings($module_key)
+	{
+		return CoreSetting::where('module_key', '=', $module_key)->get();
+	}
+
+	/**
+	 * Save the newly created settings to
+	 * storage.
+	 * @param  array $data Module data
+	 * @return array settings.
+	 */
+	public function saveSetting($data, $module_key)
 	{	
-		$this->getModule($moduleId)->coreSettings()->saveMany($data);
+		foreach ($data as $key => $value) 
+		{
+			if (is_array($value)) $value = serialize($value);
+
+			$setting = CoreSetting::where('key', '=', str_replace('_', ' ', $key))->
+						            where('module_key', '=', $module_key)->
+						            first();
+
+			$setting->value = $value;
+			$setting->save();
+		}
 	}
 
 	/**
@@ -48,15 +63,5 @@ trait SettingTrait{
 	{	
 		$setting = $this->getSetting($id);
 		$setting->delete();
-	}
-
-	/**
-	 * Delete settings related to module
-	 * @param  string $slug The slug of the module.
-	 * @return void
-	 */
-	public function deleteSettings($obj)
-	{
-		$obj->coreSettings()->delete();
 	}
 }

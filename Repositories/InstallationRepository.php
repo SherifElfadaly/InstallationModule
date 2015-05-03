@@ -201,7 +201,7 @@ class InstallationRepository
 		$repo_data = explode('/', str_replace('https://github.com/', '', $repoLink));
 		$user      = $repo_data[0];
 		$repoName  = str_replace('.git', '', $repo_data[1]);
-		$repoData  = json_decode($this->get_json("repos/$user/$repoName/contents/module.json"), true);
+		$repoData  = json_decode($this->get_json("repos/$user/$repoName/contents/module.json?client_id=6f774891be99f71bb759&client_secret=e45113efc862d92f90f146b1382cc5ad02315cc7"), true);
 
 		if(array_key_exists('message', $repoData) && $repoData['message'] == 'Not Found')
 			return false;

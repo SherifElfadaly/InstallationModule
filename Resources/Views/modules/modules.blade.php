@@ -1,5 +1,4 @@
 @extends('app')
-
 @section('content')
 <div class="container">
 	<div class="col-sm-9">
@@ -33,9 +32,9 @@
 					<td>{{ $module['type'] }}</td>
 					<td>
 						<a 
-						class="btn btn-default" 
-						href='{{ url("/Installation/enabled/{$module['slug']}") }}' 
-						role="button"
+						class ="btn btn-default" 
+						href  ='{{ url("/Installation/enabled/{$module['slug']}") }}' 
+						role  ="button"
 						>
 						@if($module['enabled'])
 							Disable
@@ -45,30 +44,31 @@
 						</a>
 
 						<a 
-						class="btn btn-default" 
-						href='{{ url("/Installation/delete/{$module['slug']}") }}' 
-						role="button"
+						class ="btn btn-default" 
+						href  ='{{ url("/Installation/delete/{$module['slug']}") }}' 
+						role  ="button"
 						>
 						Delete
 						</a>
 
 						@if($module['need_update'])
 						<a 
-						class="btn btn-default" 
-						href='{{ url("/Installation/update/{$module['slug']}") }}' 
-						role="button"
+						class ="btn btn-default" 
+						href  ='{{ url("/Installation/update/{$module['slug']}") }}' 
+						role  ="button"
 						>
 						Update
 						</a>
 						@endif
-
+						@if($module['moduleSettings']->count())
 						<a 
-						class="btn btn-default" 
-						href='{{ url("/Installation/modulesettings/show/{$module['slug']}") }}' 
-						role="button"
+						class ="btn btn-default" 
+						href  ='{{ url("/Installation/modulesettings/show/{$module['slug']}") }}' 
+						role  ="button"
 						>
 						Settings
 						</a>
+						@endif
 					</td>
 				</tr>
 				@endforeach

@@ -12,8 +12,10 @@ trait CoreModuleTrait{
 	public function getAllModules()
 	{
 		$modulesData = array();
-		CoreModule::with('coreSettings')->get()->each(function($module) use (&$modulesData){
-			$modulesData[$module->module_key] = Module::getProperties($module->module_key);
+		CoreModule::all()->each(function($module) use (&$modulesData){
+			$properties                       = Module::getProperties($module->module_key);
+			$properties['moduleSettings']     = $this->getModuleSettings($module->module_key);
+			$modulesData[$module->module_key] = $properties;
 		});
 		return $modulesData;
 	}
@@ -24,7 +26,9 @@ trait CoreModuleTrait{
 	 */
 	public function getModule($slug)
 	{
-		return CoreModule::where('module_key', '=', $slug)->first();
+		$module                 =  CoreModule::where('module_key', '=', $slug)->first();
+		$module->moduleSettings = $this->getModuleSettings($module->module_key);
+		return $module;
 	}
 
 	/**

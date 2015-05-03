@@ -24,70 +24,55 @@ class ModuleSettingsController extends Controller {
 	}
 
 	/**
-	 * Display the settings.
-	 *
+	 * Display the settings and handle the ajax request
+	 * for save the file type settings.
+	 * 
+	 * @param  int  $module_key
 	 * @return Response
 	 */
-	public function getShow($slug)
+	public function getShow(Request $request, $module_key)
 	{
-		$module = $this->installation->getModule($slug);
+		if($request->ajax()) 
+		{
+			$data = [$request->get('settingKey') => serialize($request->get('ids'))];
+			$this->installation->saveSetting($data, $module_key);
+
+			return 'done';
+		}
+
+		$module = $this->installation->getModule($module_key);
+		foreach ($module->moduleSettings as $settings) 
+		{
+			if ($settings->input_type == 'file') 
+			{
+				$module->mediaLibrary     = \GalleryRepository::getMediaLibrary('all', false, $settings->name . 'mediaLibrary');
+				$module->mediaLibraryName = $settings->name . 'mediaLibrary';
+			}
+		}
 		return view('Installation::modulesettings.modulesettings', compact('module'));
 	}
 
-
 	/**
-	 * Show the form for creating a new module.
+	 * Store the module settings in storage.
 	 *
+	 * @param  Request  $request the request holding the form data
+	 * @param  int  $module_key
 	 * @return Response
 	 */
-	public function getCreate()
-	{	
-		return view('Installation::modulesettings.addmodulesettings');
-	}
-
-	/**
-	 * Store a newly created module in storage.
-	 *
-	 * @return Response
-	 */
-	public function postCreate(Request $request, $id)
+	public function postShow(Request $request, $module_key)
 	{
 		$errors = array();
-		foreach ($request->input('key') as $key) 
+		foreach ($request->except('_token') as $key => $value) 
 		{
-			if (strlen($key) == 0) 
+			if ( ! is_array($value) && strlen(trim($value)) == 0) 
 			{
-				$errors[] = "Key Required";
-				break;
-			}
-		}
-
-		foreach ($request->input('value') as $value) 
-		{
-			if (strlen($value) == 0) 
-			{
-				$errors[] = "Value Required";
-				break;
+				$errors[] = $key . " Required";
 			}
 		}
 		if ( ! empty($errors)) 	return redirect()->back()->withErrors($errors);
 
-		$data    = $this->installation->prepareSettingData($request->all());
-		$profile = $this->installation->createSetting($data, $id);
+		$this->installation->saveSetting($request->except('_token'), $module_key);
 
-		return 	redirect()->back()->with('message', 'Your profile had been created');
+		return 	redirect()->back()->with('message', 'Your settings had been created');
 	}
-
-	/**
-	 * Remove the specified module from storage.
-	 *
-	 * @param  int  $slug
-	 * @return Response
-	 */
-	public function getDelete($id)
-	{
-		$this->installation->deleteSetting($id);
-		return 	redirect()->back();
-	}
-
 }

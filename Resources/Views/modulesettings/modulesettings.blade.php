@@ -1,38 +1,115 @@
 @extends('app')
-
 @section('content')
+
 <div class="container">
-	<div class="col-sm-9">
-	<h3>{{ $module->module_name }}'s Settings</h3>
-	<a class="btn btn-default" href='{{ url("/Installation/modulesettings/create/$module->module_key") }}' role="button">Add Module Settings</a>
-		<table class="table table-striped">
-			<thead>
-				<tr>
-					<th>#</th>
-					<th>Key</th>
-					<th>Value</th>
-					<th>Options</th>
-				</tr>
-			</thead>
-			<tbody>
-				@foreach($module->coreSettings as $moduelSetting)
-				<tr>
-					<th scope="row">{{ $moduelSetting->id }}</th>
-					<td>{{ $moduelSetting->key }}</td>
-					<td>{{ $moduelSetting->value }}</td>
-					<td>
-						<a 
-						class="btn btn-default" 
-						href='{{ url("/Installation/modulesettings/delete/$moduelSetting->id") }}' 
-						role="button"
-						>
-						Delete
-						</a>
-					</td>
-				</tr>
+	<div class="col-sm-7">
+		@if (count($errors) > 0)
+		<div class="alert alert-danger">
+			<strong>Whoops!</strong> There were some problems with your input.<br><br>
+			<ul>
+				@foreach ($errors->all() as $error)
+				<li>{{ $error }}</li>
 				@endforeach
-			</tbody>
-		</table>
+			</ul>
+		</div>
+		@endif
+
+		@if (Session::has('message'))
+		<div class="alert alert-warning">
+			<ul>
+				<li>{{ Session::get('message') }}</li>
+			</ul>
+		</div>
+		@endif
+
+		<h3>{{ $module->module_name }} Settings</h3>
+		<form class="form-horizontal" id="user_form_edit" method="post">
+			<input type="hidden" name="_token" value="{{ csrf_token() }}">
+
+			@foreach($module->moduleSettings as $setting)
+
+				<div class="form-group">
+					<label for="inputEmail3" class="col-sm-2 control-label">{{ $setting->key }}</label>
+					<div class="col-sm-7">
+						@if($setting->input_type == 'link')
+							<a 
+							href        ="{{ $setting->href }}" 
+							class       ="btn btn-default btn-block" 
+							id          ="{{ $setting->key }}" 
+							>
+							Send
+							</a>
+
+						@elseif($setting->input_type == 'file')
+							
+							@foreach($setting->value as $file)
+									<img src="{{ $file->path }}" width="50" height="50" alt="{{ $file->caption }}">
+							@endforeach
+
+						@elseif($setting->input_type == 'multiselect')
+
+							<select multiple name="{{ $setting->key }}[]" class="form-control">
+								@foreach($setting->select_values as $select_value)
+									<option 
+									value ="{{ $select_value }}"
+									@if(in_array($select_value, $setting->value))
+										selected
+									@endif
+									>
+									{{ $select_value }}
+									</option>
+								@endforeach
+							</select>  
+
+						@elseif($setting->input_type == 'select')
+
+							<select name="{{ $setting->key }}[]" class="form-control">
+								@foreach($setting->select_values as $select_value)
+									<option 
+									value ="{{ $select_value }}"
+									@if(in_array($select_value, $setting->value))
+										selected
+									@endif
+									>
+									{{ $select_value }}
+									</option>
+								@endforeach
+							</select>
+
+						@else
+							<input 
+							type        ="{{ $setting->input_type }}" 
+							class       ="form-control" 
+							id          ="{{ $setting->key }}" 
+							name        ="{{ $setting->key }}" 
+							placeholder ="{{ $setting->key }}" 
+							value       ="{{ $setting->value }}"
+							>
+						@endif
+					</div>
+				</div>
+			@endforeach
+
+			<div class="form-group">
+				<div class="col-sm-offset-2 col-sm-5">
+					<button type="submit" id="user_submit" class="btn btn-default">Submit</button>
+				</div>
+			</div>
+
+		</form>
+	</div>
+	<div class="col-sm-3">
+		@foreach($module->moduleSettings as $setting)
+			@if($setting->input_type == 'file')
+
+				<div class="form-group">
+					<label for="inputEmail3" class="col-sm-3 control-label">{{ $setting->key }}</label>
+					{!! $module->mediaLibrary !!}
+					@include('Installation::modulesettings.assets.addsettingsfile')
+				</div>
+
+			@endif
+		@endforeach
 	</div>
 </div>
 @endsection
