@@ -2,11 +2,13 @@
 
 use App\Modules\Installation\CoreModule;
 use App\Modules\Installation\Traits\CoreModuleTrait;
+use App\Modules\Installation\Traits\CoreModulePartTrait;
 use App\Modules\Installation\Traits\SettingTrait;
 
 class InstallationRepository
 {
 	use CoreModuleTrait;
+	use CoreModulePartTrait;
 	use SettingTrait;
 
 	/**
@@ -28,6 +30,11 @@ class InstallationRepository
 		$module_data['module_key']     = $jsonData->slug;
 		$module_data['module_version'] = $jsonData->version;
 		$module_data['module_type']    = $jsonData->type;
+
+		if (property_exists($jsonData, 'module_parts'))
+		{
+			$module_data['module_parts']   = $jsonData->module_parts;
+		}
 
 		$git = new \PHPGit\Git();
 		if($version === true)
@@ -69,6 +76,11 @@ class InstallationRepository
 			$module_data['module_key']     = $moduleProperties['slug'];
 			$module_data['module_version'] = $moduleProperties['version'];
 			$module_data['module_type']    = $moduleProperties['type'];
+
+			if(array_key_exists('module_parts', $moduleProperties))
+			{
+				$module_data['module_parts']   = $moduleProperties['module_parts'];
+			}
 
 			if($version === true) $this->saveModuleData($module_data);
 			if(is_array($version)) $this->updateModuleData($moduleProperties['slug'], $module_data);

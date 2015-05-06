@@ -52,23 +52,32 @@
 						</a>
 
 						@if($module['need_update'])
-						<a 
-						class ="btn btn-default" 
-						href  ='{{ url("/Installation/update/{$module['slug']}") }}' 
-						role  ="button"
-						>
-						Update
-						</a>
+							<a 
+							class ="btn btn-default" 
+							href  ='{{ url("/Installation/update/{$module['slug']}") }}' 
+							role  ="button"
+							>
+							Update
+							</a>
 						@endif
+
 						@if($module['moduleSettings']->count())
+							<a 
+							class ="btn btn-default" 
+							href  ='{{ url("/Installation/modulesettings/show/{$module['slug']}") }}' 
+							role  ="button"
+							>
+							Settings
+							</a>
+						@endif
+						
 						<a 
 						class ="btn btn-default" 
-						href  ='{{ url("/Installation/modulesettings/show/{$module['slug']}") }}' 
+						href  ='{{ url("/Installation/moduleparts/{$module['slug']}") }}'
 						role  ="button"
 						>
-						Settings
+						Module Parts
 						</a>
-						@endif
 					</td>
 				</tr>
 				@endforeach

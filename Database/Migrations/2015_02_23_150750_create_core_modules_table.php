@@ -21,6 +21,7 @@ class CreateCoreModulesTable extends Migration
 				$table->string('module_key')->unique()->index();
 				$table->double('module_version', 50)->index();
 				$table->enum('module_type', ['plugin', 'theme'])->index();
+				
 				$table->timestamps();
 			});
 		}

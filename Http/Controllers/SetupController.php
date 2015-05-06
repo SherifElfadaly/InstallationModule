@@ -30,6 +30,7 @@ class SetupController extends Controller {
 			ini_set('auto_detect_line_endings', '1');
 			$lines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 			ini_set('auto_detect_line_endings', $autodetect);
+			
 			foreach ($lines as $line) 
 			{
             	// Disregard comments

@@ -5,5 +5,6 @@
     "description": "This is the description for the Installation module.",
     "repo_link": "https:\/\/github.com\/SherifElfadaly\/MarvelModules.git",
     "type" : "plugin",
-    "enabled": true
+    "enabled": true,
+    "module_parts": ["Modules"]
 }

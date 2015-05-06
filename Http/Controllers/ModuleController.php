@@ -1,17 +1,10 @@
 <?php namespace App\Modules\Installation\Http\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\BaseController;
 use App\Modules\Installation\Repositories\InstallationRepository;
 use App\Modules\Installation\Http\Requests\InstallationFormRequest;
 
-class ModuleController extends Controller {
-
-	/**
-	 * The InstallationRepository implementation.
-	 *
-	 * @var InstallationRepository
-	 */
-	protected $installation;
+class ModuleController extends BaseController {
 
 	/**
 	 * Create new ModuleController instance.
@@ -19,7 +12,7 @@ class ModuleController extends Controller {
 	 */
 	public function __construct(InstallationRepository $installation)
 	{
-		$this->installation = $installation;
+		parent::__construct($installation, 'Modules');
 		$this->middleware('AclAuthenticate');
 	}
 
@@ -33,9 +26,9 @@ class ModuleController extends Controller {
 	 */
 	public function getIndex()
 	{
-		$this->installation->scanModules();
-		$modules = $this->installation->getAllModules();
-		$modules = $this->installation->needUpdate($modules);
+		$this->repository->scanModules();
+		$modules = $this->repository->getAllModules();
+		$modules = $this->repository->needUpdate($modules);
 
 		return view('Installation::modules.modules', compact('modules'));
 	}
@@ -47,7 +40,7 @@ class ModuleController extends Controller {
 	 */
 	public function getUpdate($slug)
 	{
-		$result  = $this->installation->cloneModule($this->installation->getModuleProperties($slug)['repo_link']);
+		$result  = $this->repository->cloneModule($this->repository->getModuleProperties($slug)['repo_link']);
 		
 		$message = 'Your module already exists and up to date';
 		if (is_array($result)) 
@@ -80,11 +73,11 @@ class ModuleController extends Controller {
 	{
 		if ( ! is_null($request->file('module'))) 
 		{
-			$result = $this->installation->uploadModule($request->file('module'));
+			$result = $this->repository->uploadModule($request->file('module'));
 		}
 		else
 		{
-			$result = $this->installation->cloneModule($request->get('repo_link'));	
+			$result = $this->repository->cloneModule($request->get('repo_link'));	
 		}
 
 		$message = 'Your module already exists and up to date';
@@ -111,7 +104,7 @@ class ModuleController extends Controller {
 	 */
 	public function getEnabled($slug)
 	{
-		$this->installation->changeEnabled($slug);
+		$this->repository->changeEnabled($slug);
 		return 	redirect()->back();
 	}
 
@@ -123,8 +116,20 @@ class ModuleController extends Controller {
 	 */
 	public function getDelete($slug)
 	{
-		$this->installation->deleteModule($slug);
+		$this->repository->deleteModule($slug);
 		return 	redirect()->back();
+	}
+
+	/**
+	 * Show the module parts.
+	 *
+	 * @param  int  $slug
+	 * @return Response
+	 */
+	public function getModuleparts($slug)
+	{
+		$moduleParts = $this->repository->getModuleParts($slug);
+		return view('Installation::modules.moduleparts', compact('moduleParts'));
 	}
 
 }

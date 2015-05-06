@@ -13,7 +13,8 @@ trait CoreModuleTrait{
 	{
 		$modulesData = array();
 		CoreModule::all()->each(function($module) use (&$modulesData){
-			$properties                       = Module::getProperties($module->module_key);
+			$properties                       = $this->getModuleProperties($module->module_key);
+			$properties['id']                 = $module->id;
 			$properties['moduleSettings']     = $this->getModuleSettings($module->module_key);
 			$modulesData[$module->module_key] = $properties;
 		});
@@ -52,7 +53,11 @@ trait CoreModuleTrait{
 	 */
 	public function saveModuleData($data)
 	{
-		CoreModule::create($data);
+		$module = CoreModule::create($data);
+		if (array_key_exists('module_parts', $data))
+		{
+			$this->saveModuleParts($module->module_key, $data['module_parts']);
+		}
 	}
 
 	/**
@@ -155,18 +160,29 @@ trait CoreModuleTrait{
 	 * @return void.
 	 */
 	public function scanModules()
-	{
+	{	
+		\Artisan::call('module:migrate', ['module' => 'installation']);
+		\Artisan::call('module:migrate', ['module' => 'acl']);
+
 		foreach (Module::all() as $module) 
 		{
+			$module_data = array();
 			if( ! CoreModule::where('module_key', '=', $module['slug'])->count())
 			{
-				$module_data['module_name']    = $module['name'];
-				$module_data['module_key']     = $module['slug'];
-				$module_data['module_version'] = $module['version'];
-				$module_data['module_type']    = $module['type'];
+				$module_data['module_name']      = $module['name'];
+				$module_data['module_key']       = $module['slug'];
+				$module_data['module_version']   = $module['version'];
+				$module_data['module_type']      = $module['type'];
+
+				if(array_key_exists('module_parts', $module))
+				{
+					$module_data['module_parts'] = $module['module_parts'];
+				}
 
 				$this->saveModuleData($module_data);
+				\Artisan::call('module:migrate', ['module' => $module['slug']]);
 			}
-		}	
+		}
+		return true;
 	}
 }

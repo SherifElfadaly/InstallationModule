@@ -4,22 +4,22 @@
 <div class="container">
 	<div class="col-sm-7">
 		@if (count($errors) > 0)
-		<div class="alert alert-danger">
-			<strong>Whoops!</strong> There were some problems with your input.<br><br>
-			<ul>
-				@foreach ($errors->all() as $error)
-				<li>{{ $error }}</li>
-				@endforeach
-			</ul>
-		</div>
+			<div class="alert alert-danger">
+				<strong>Whoops!</strong> There were some problems with your input.<br><br>
+				<ul>
+					@foreach ($errors->all() as $error)
+						<li>{{ $error }}</li>
+					@endforeach
+				</ul>
+			</div>
 		@endif
 
 		@if (Session::has('message'))
-		<div class="alert alert-warning">
-			<ul>
-				<li>{{ Session::get('message') }}</li>
-			</ul>
-		</div>
+			<div class="alert alert-warning">
+				<ul>
+					<li>{{ Session::get('message') }}</li>
+				</ul>
+			</div>
 		@endif
 
 		<h3>{{ $module->module_name }} Settings</h3>

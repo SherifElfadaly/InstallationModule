@@ -1,17 +1,10 @@
 <?php namespace App\Modules\Installation\Http\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\BaseController;
 use App\Modules\Installation\Repositories\InstallationRepository;
 use Illuminate\Http\Request;
 
-class ModuleSettingsController extends Controller {
-
-	/**
-	 * The InstallationRepository implementation.
-	 *
-	 * @var InstallationRepository
-	 */
-	protected $installation;
+class ModuleSettingsController extends BaseController {
 
 	/**
 	 * Create new ModuleSettings instance.
@@ -19,7 +12,7 @@ class ModuleSettingsController extends Controller {
 	 */
 	public function __construct(InstallationRepository $installation)
 	{
-		$this->installation = $installation;
+		parent::__construct($installation, 'Modules');
 		$this->middleware('AclAuthenticate');
 	}
 
@@ -35,12 +28,12 @@ class ModuleSettingsController extends Controller {
 		if($request->ajax()) 
 		{
 			$data = [$request->get('settingKey') => serialize($request->get('ids'))];
-			$this->installation->saveSetting($data, $module_key);
+			$this->repository->saveSetting($data, $module_key);
 
 			return 'done';
 		}
 
-		$module = $this->installation->getModule($module_key);
+		$module = $this->repository->getModule($module_key);
 		foreach ($module->moduleSettings as $settings) 
 		{
 			if ($settings->input_type == 'file') 
@@ -71,7 +64,7 @@ class ModuleSettingsController extends Controller {
 		}
 		if ( ! empty($errors)) 	return redirect()->back()->withErrors($errors);
 
-		$this->installation->saveSetting($request->except('_token'), $module_key);
+		$this->repository->saveSetting($request->except('_token'), $module_key);
 
 		return 	redirect()->back()->with('message', 'Your settings had been created');
 	}
