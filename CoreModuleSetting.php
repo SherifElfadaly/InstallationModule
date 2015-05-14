@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Eloquent\Model;
 
-class CoreSetting extends Model {
+class CoreModuleSetting extends Model {
 
 	protected $table    = 'core_settings';
 	protected $fillable = ['key', 'value', 'input_type', 'href', 'module_key', 'select_values'];
@@ -25,7 +25,7 @@ class CoreSetting extends Model {
 			$files = array_map(
 					function($value)
 					{
-						return \GalleryRepository::getGallery($value);
+						return \CMS::gallelries()->find($value);
 					} , 
 					$files
 				);

@@ -14,7 +14,8 @@ class CreateCoreSettingsTable extends Migration
 	{
 		if ( ! Schema::hasTable('core_settings'))
 		{
-			Schema::create('core_settings', function(Blueprint $table) {
+			Schema::create('core_settings', function(Blueprint $table) 
+			{
 				$table->bigIncrements('id');
 				$table->string('key', 100)->index();
 				$table->text('value');

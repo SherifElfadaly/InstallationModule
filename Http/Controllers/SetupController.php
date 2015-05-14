@@ -11,8 +11,10 @@ class SetupController extends Controller {
 	 */
 	public function __construct()
 	{
-		if(file_exists(base_path('.env')) && \AclRepository::checkForAdmins() > 0)
+		if(file_exists(base_path('.env')) && \CMS::groups()->adminCount() > 0)
+		{
 			$this->middleware('AclAuthenticate');
+		}
 	}
 
 	/**
@@ -28,7 +30,7 @@ class SetupController extends Controller {
 		{
 			$autodetect = ini_get('auto_detect_line_endings');
 			ini_set('auto_detect_line_endings', '1');
-			$lines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+			$lines      = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 			ini_set('auto_detect_line_endings', $autodetect);
 			
 			foreach ($lines as $line) 
@@ -46,7 +48,7 @@ class SetupController extends Controller {
 				}
 			}
 
-			if($admin = \AclRepository::getUser('1'))
+			if($admin = \CMS::users()->find('1'))
 			{
 				$setupData->name  = $admin->name;
 				$setupData->email = $admin->email;
@@ -92,20 +94,17 @@ SESSION_DRIVER=file";
 	 * @return Response
 	 */
 	public function postSaveadmin(SetupAdminFormRequest $request)
-	{
-		$data['name']     = $request->get('name');
-		$data['email']    = $request->get('email');
-		$data['password'] = bcrypt($request->get('password'));
-		
-		if ($admin = \AclRepository::findUserByEmail($data['email']))
+	{	
+		$admin = \CMS::users()->first('email', $request->get('email'));
+		if ($admin !== false)
 		{
-			\AclRepository::updateUser($admin->id, $data);	
+			\CMS::users()->update($admin->id, $request->all());	
 		}
 		else
 		{
-			$admin = \AclRepository::createUser($data);
+			$admin = \CMS::users()->create($request->all());
 		}
-		\AclRepository::addGroups($admin, '1');
+		\CMS::groups()->addGroups($admin, '1');
 		\Auth::loginUsingId($admin->id);
 		
 		return 	redirect()->back()->with('step', '3');

@@ -1,19 +1,23 @@
 <?php namespace App\Modules\Installation\Http\Controllers;
 
 use App\Http\Controllers\BaseController;
-use App\Modules\Installation\Repositories\InstallationRepository;
 use App\Modules\Installation\Http\Requests\InstallationFormRequest;
 
 class ModuleController extends BaseController {
 
 	/**
-	 * Create new ModuleController instance.
-	 * @param InstallationRepository
+	 * Specify that this controller should be 
+	 * accessed by the admin users only.
+	 * @var adminOnly
 	 */
-	public function __construct(InstallationRepository $installation)
+	protected $adminOnly = true;
+
+	/**
+	 * Create new ModuleController instance.
+	 */
+	public function __construct()
 	{
-		parent::__construct($installation, 'Modules');
-		$this->middleware('AclAuthenticate');
+		parent::__construct('Modules');
 	}
 
 	/**
@@ -26,9 +30,8 @@ class ModuleController extends BaseController {
 	 */
 	public function getIndex()
 	{
-		$this->repository->scanModules();
-		$modules = $this->repository->getAllModules();
-		$modules = $this->repository->needUpdate($modules);
+		$modules = \CMS::coreModules()->getAllModules();
+		$modules = \CMS::coreModules()->needUpdate($modules);
 
 		return view('Installation::modules.modules', compact('modules'));
 	}
@@ -40,7 +43,7 @@ class ModuleController extends BaseController {
 	 */
 	public function getUpdate($slug)
 	{
-		$result  = $this->repository->cloneModule($this->repository->getModuleProperties($slug)['repo_link']);
+		$result  = \CMS::coreModules()->cloneModule(\CMS::coreModules()->getModuleProperties($slug)['repo_link']);
 		
 		$message = 'Your module already exists and up to date';
 		if (is_array($result)) 
@@ -73,11 +76,11 @@ class ModuleController extends BaseController {
 	{
 		if ( ! is_null($request->file('module'))) 
 		{
-			$result = $this->repository->uploadModule($request->file('module'));
+			$result = \CMS::coreModules()->uploadModule($request->file('module'));
 		}
 		else
 		{
-			$result = $this->repository->cloneModule($request->get('repo_link'));	
+			$result = \CMS::coreModules()->cloneModule($request->get('repo_link'));	
 		}
 
 		$message = 'Your module already exists and up to date';
@@ -104,7 +107,7 @@ class ModuleController extends BaseController {
 	 */
 	public function getEnabled($slug)
 	{
-		$this->repository->changeEnabled($slug);
+		\CMS::coreModules()->changeEnabled($slug);
 		return 	redirect()->back();
 	}
 
@@ -116,7 +119,7 @@ class ModuleController extends BaseController {
 	 */
 	public function getDelete($slug)
 	{
-		$this->repository->deleteModule($slug);
+		\CMS::coreModules()->deleteModule($slug);
 		return 	redirect()->back();
 	}
 
@@ -128,7 +131,7 @@ class ModuleController extends BaseController {
 	 */
 	public function getModuleparts($slug)
 	{
-		$moduleParts = $this->repository->getModuleParts($slug);
+		$moduleParts = \CMS::coreModuleParts()->getModuleParts($slug);
 		return view('Installation::modules.moduleparts', compact('moduleParts'));
 	}
 

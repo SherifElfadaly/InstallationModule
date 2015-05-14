@@ -1,19 +1,23 @@
 <?php namespace App\Modules\Installation\Http\Controllers;
 
 use App\Http\Controllers\BaseController;
-use App\Modules\Installation\Repositories\InstallationRepository;
 use Illuminate\Http\Request;
 
 class ModuleSettingsController extends BaseController {
 
 	/**
-	 * Create new ModuleSettings instance.
-	 * @param InstallationRepository
+	 * Specify that this controller should be 
+	 * accessed by the admin users only.
+	 * @var adminOnly
 	 */
-	public function __construct(InstallationRepository $installation)
+	protected $adminOnly = true;
+	
+	/**
+	 * Create new ModuleSettings instance.
+	 */
+	public function __construct()
 	{
-		parent::__construct($installation, 'Modules');
-		$this->middleware('AclAuthenticate');
+		parent::__construct('Modules');
 	}
 
 	/**
@@ -28,17 +32,17 @@ class ModuleSettingsController extends BaseController {
 		if($request->ajax()) 
 		{
 			$data = [$request->get('settingKey') => serialize($request->get('ids'))];
-			$this->repository->saveSetting($data, $module_key);
+			\CMS::coreModuleSettings()->saveSetting($data, $module_key);
 
 			return 'done';
 		}
 
-		$module = $this->repository->getModule($module_key);
+		$module = \CMS::coreModuleSettings()->find($module_key);
 		foreach ($module->moduleSettings as $settings) 
 		{
 			if ($settings->input_type == 'file') 
 			{
-				$module->mediaLibrary     = \GalleryRepository::getMediaLibrary('all', false, $settings->name . 'mediaLibrary');
+				$module->mediaLibrary     = \CMS::galleries()->getMediaLibrary('all', false, $settings->name . 'mediaLibrary');
 				$module->mediaLibraryName = $settings->name . 'mediaLibrary';
 			}
 		}
@@ -64,7 +68,7 @@ class ModuleSettingsController extends BaseController {
 		}
 		if ( ! empty($errors)) 	return redirect()->back()->withErrors($errors);
 
-		$this->repository->saveSetting($request->except('_token'), $module_key);
+		\CMS::coreModuleSettings()->saveSetting($request->except('_token'), $module_key);
 
 		return 	redirect()->back()->with('message', 'Your settings had been created');
 	}

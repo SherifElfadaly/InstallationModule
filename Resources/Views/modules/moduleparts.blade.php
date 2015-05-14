@@ -21,19 +21,19 @@
 			</thead>
 			<tbody>
 				@foreach($moduleParts as $modulePart)
-				<tr>
-					<td>{{ $modulePart->id }}</td>
-					<td>{{ $modulePart->part_key }}</td>
-					<td>
-						<a 
-						class ="btn btn-default" 
-						href  ='{{ url("/Acl/permissions/show/{$modulePart->part_key}/{$modulePart->id}") }}'
-						role  ="button"
-						>
-						Permissions
-						</a>
-					</td>
-				</tr>
+					<tr>
+						<td>{{ $modulePart->id }}</td>
+						<td>{{ $modulePart->part_key }}</td>
+						<td>
+							<a 
+							class ="btn btn-default" 
+							href  ='{{ url("admin/Acl/permissions/show/{$modulePart->part_key}/{$modulePart->id}") }}'
+							role  ="button"
+							>
+							Permissions
+							</a>
+						</td>
+					</tr>
 				@endforeach
 			</tbody>
 		</table>

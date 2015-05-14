@@ -1,15 +1,19 @@
 <?php namespace App\Modules\Installation\Repositories;
 
+use App\AbstractRepositories\AbstractRepository;
 use App\Modules\Installation\CoreModule;
-use App\Modules\Installation\Traits\CoreModuleTrait;
-use App\Modules\Installation\Traits\CoreModulePartTrait;
-use App\Modules\Installation\Traits\SettingTrait;
 
-class InstallationRepository
+class CoreModuleRepository extends AbstractRepository
 {
-	use CoreModuleTrait;
-	use CoreModulePartTrait;
-	use SettingTrait;
+	protected function getModel()
+	{
+		return 'App\Modules\Installation\CoreModule';
+	}
+
+	protected function getRelations()
+	{
+		return [];
+	}
 
 	/**
 	 * Clone module form a github repository.
@@ -36,7 +40,7 @@ class InstallationRepository
 			$module_data['module_parts']   = $jsonData->module_parts;
 		}
 
-		$git = new \PHPGit\Git();
+		$git = \App::make('\PHPGit\Git');
 		if($version === true)
 		{
 			$git->clone($link, app_path('Modules/') . ucfirst($jsonData->slug));
@@ -44,10 +48,9 @@ class InstallationRepository
 		}
 		elseif(is_array($version))
 		{
-			$this->removeModelDirectory($jsonData->slug);
+			$this->removeModuleDirectory($jsonData->slug);
 			$git->clone($link, app_path('Modules/') . ucfirst($jsonData->slug));
-
-			$this->updateModuleData($jsonData->slug, $module_data);
+			$this->$this->update($moduleProperties['slug'], $module_data, 'module_key');
 		}
 
 		\Artisan::call('module:migrate', ['module' => $jsonData->slug]);
@@ -83,7 +86,7 @@ class InstallationRepository
 			}
 
 			if($version === true) $this->saveModuleData($module_data);
-			if(is_array($version)) $this->updateModuleData($moduleProperties['slug'], $module_data);
+			if(is_array($version)) $this->update($moduleProperties['slug'], $module_data, 'module_key');
 			
 			unlink($file->getRealPath());
 			\Artisan::call('module:migrate', ['module' => $moduleProperties['slug']]);
@@ -139,15 +142,10 @@ class InstallationRepository
 			}
 		}
 
-		$coreModule = CoreModule::where('module_key', '=', $jsonData->slug)->first();
+		$coreModule = $this->findBy('module_key', $jsonData->slug)[0];
 
 		if(is_null($coreModule))
 		{	
-			if($jsonData->type = 'theme')
-			{
-				$this->disapleAllThemes();
-			}
-
 			return true;
 		}
 		elseif ($coreModule->module_version < $jsonData->version) 
@@ -163,7 +161,7 @@ class InstallationRepository
 	 * @param  string $path The path of the sub directory.
 	 * @return void.
 	 */
-	public function removeModelDirectory($slug, $path = false)
+	public function removeModuleDirectory($slug, $path = false)
 	{
 		if ($slug) $path  = app_path('Modules/') . ucfirst($slug) . '/';
 		$files = glob($path . '{,.git}*', GLOB_BRACE);
@@ -172,7 +170,7 @@ class InstallationRepository
 		{
 			if (is_dir($file))
 			{
-				$this->removeModelDirectory(false, $file . '/');
+				$this->removeModuleDirectory(false, $file . '/');
 			}
 			else
 			{
@@ -219,5 +217,195 @@ class InstallationRepository
 			return false;
 
 		return json_decode(base64_decode($repoData['content']));
+	}
+
+	/**
+	 * Get all installed modules.
+	 * @return array Modules data.
+	 */
+	public function getAllModules()
+	{
+		$modulesData = array();
+		$this->all()->each(function($module) use (&$modulesData){
+			$properties                       = $this->getModuleProperties($module->module_key);
+			$properties['id']                 = $module->id;
+			$properties['moduleSettings']     = \CMS::coreModuleSettings()->getModuleSettings($module->module_key);
+			$modulesData[$module->module_key] = $properties;
+		});
+		return $modulesData;
+	}
+
+	/**
+	 * Get module data from storage.
+	 * @return Module data.
+	 */
+	public function getModule($slug)
+	{
+		$module                 =  $this->findBy('module_key', $slug)[0];
+		$module->moduleSettings = \CMS::coreModuleSettings()->getModuleSettings($module->module_key);
+		return $module;
+	}
+
+	/**
+	 * Get the enabled theme data from storage.
+	 * @return Module data.
+	 */
+	public function getActiveTheme()
+	{
+		$activeTheme = false;
+		$this->findBy('module_type', 'theme')->each(function($theme) use (&$activeTheme){
+			if(\Module::isEnabled($theme->module_key)) $activeTheme = $theme;
+		});
+		return $activeTheme;
+	}
+
+	/**
+	 * Save the newly installed module to
+	 * storage.
+	 * @param  array $data Module data
+	 * @return void.
+	 */
+	public function saveModuleData($data)
+	{
+		$module = CoreModule::create($data);
+		if (array_key_exists('module_parts', $data))
+		{
+			\CMS::coreModuleParts()->saveModuleParts($module->module_key, $data['module_parts']);
+		}
+	}
+	
+	/**
+	 * Delete module form storage and
+	 * unistall it.
+	 * @param  string $slug The slug of the module.
+	 * @return void
+	 */
+	public function deleteModule($slug)
+	{
+		$this->getModule($slug)->delete();
+		\Artisan::call('module:migrate:reset', ['module' => $slug]);
+		$this->removeModuleDirectory($slug);
+	}
+
+	/**
+	  * Enable or disaple module.
+	  * @param  string $slug The slug of the module.
+	  * @return void
+	  */
+	public function changeEnabled($slug)
+	{
+		if($this->getModule($slug)->module_type == 'plugin')
+		{
+			\Module::isEnabled($slug) ? \Module::disable($slug) : \Module::enable($slug);
+		}
+		else
+		{
+			\Module::isEnabled($slug) ? \Module::disable($slug) : $this->changeTheme($slug);
+		}
+	}
+
+	/**
+	  * Set the main theme.
+	  * @param  string $slug The slug of the module.
+	  * @return void
+	  */
+	public function changeTheme($slug)
+	{
+		if($this->getModule($slug)->module_type = 'theme')
+		{
+			$this->disapleAllThemes();
+			\Module::enable($slug);
+		}
+	}
+
+	/**
+	  * Disaple All Themes.
+	  * @return void
+	  */
+	public function disapleAllThemes()
+	{
+		$this->findBy('module_type', 'theme')->each(function($module){
+				\Module::disable($module->module_key);
+			});
+	}
+
+	/**
+	 * Get the module.json file content.
+	 * @param  string $moduleName The slug of the module.
+	 * @return array module data.
+	 */
+	public function getModuleProperties($moduleName)
+	{
+		return \Module::getProperties($moduleName);
+	}
+
+	/**
+	 * Check if the module or modules need update.
+	 * @param  string $modules The single or array 
+	 * of module object.
+	 * @return array module data.
+	 */
+	public function needUpdate($modules)
+	{
+		foreach ($modules as &$module) 
+		{
+			$module['need_update'] = false;
+			if( ! array_key_exists('repo_link', $module)) continue;
+
+			$jsonData  = $this->get_repo_data($module['repo_link']);
+			if( ! $jsonData) continue;
+
+			if($module['version'] < $jsonData->version) $module['need_update'] = true;
+		}
+		return $modules;
+	}
+
+	/**
+	 * Scan for modules whose data isn't stored in
+	 * storage and store them.
+	 * @return boolean.
+	 */
+	public function scanModules()
+	{	
+		\Artisan::call('module:migrate', ['module' => 'installation']);
+		if( ! $this->findBy('module_key', 'installation')->count())
+		{
+			$this->saveModule($this->getModuleProperties('acl'));
+		}
+
+		foreach (\Module::all() as $module) 
+		{
+			$this->saveModule($module);
+			if($module['type'] == 'theme' && $module['enabled'] == true)
+			{
+				$this->changeTheme($module['slug']);
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Scan for modules whose data isn't stored in
+	 * storage and store them.
+	 * @return void.
+	 */
+	public function saveModule($module)
+	{	
+		$module_data = array();
+		if( ! $this->findBy('module_key', $module['slug'])->count())
+		{
+			$module_data['module_name']      = $module['name'];
+			$module_data['module_key']       = $module['slug'];
+			$module_data['module_version']   = $module['version'];
+			$module_data['module_type']      = $module['type'];
+
+			if(array_key_exists('module_parts', $module))
+			{
+				$module_data['module_parts'] = $module['module_parts'];
+			}
+
+			$this->saveModuleData($module_data);
+			\Artisan::call('module:migrate', ['module' => $module['slug']]);
+		}
 	}
 }

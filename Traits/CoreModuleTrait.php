@@ -80,7 +80,7 @@ trait CoreModuleTrait{
 	public function deleteModule($slug)
 	{
 		$this->getModule($slug)->delete();
-		\Artisan::call('module:migrate-reset', ['module' => $slug]);
+		\Artisan::call('module:migrate:reset', ['module' => $slug]);
 
 		$this->removeModelDirectory($slug);
 	}
@@ -92,9 +92,13 @@ trait CoreModuleTrait{
 	  */
 	public function changeEnabled($slug)
 	{
-		if($this->getModule($slug)->module_type = 'plugin')
+		if($this->getModule($slug)->module_type == 'plugin')
 		{
 			Module::isEnabled($slug) ? Module::disable($slug) : Module::enable($slug);
+		}
+		else
+		{
+			Module::isEnabled($slug) ? Module::disable($slug) : $this->changeTheme($slug);
 		}
 	}
 
@@ -157,32 +161,49 @@ trait CoreModuleTrait{
 	/**
 	 * Scan for modules whose data isn't stored in
 	 * storage and store them.
-	 * @return void.
+	 * @return boolean.
 	 */
 	public function scanModules()
 	{	
 		\Artisan::call('module:migrate', ['module' => 'installation']);
-		\Artisan::call('module:migrate', ['module' => 'acl']);
+		if( ! CoreModule::where('module_key', '=', 'installation')->count())
+		{
+			$this->saveModule(Module::getProperties('acl'));
+		}
 
 		foreach (Module::all() as $module) 
 		{
-			$module_data = array();
-			if( ! CoreModule::where('module_key', '=', $module['slug'])->count())
+			$this->saveModule($module);
+			if($module['type'] == 'theme' && $module['enabled'] == true)
 			{
-				$module_data['module_name']      = $module['name'];
-				$module_data['module_key']       = $module['slug'];
-				$module_data['module_version']   = $module['version'];
-				$module_data['module_type']      = $module['type'];
-
-				if(array_key_exists('module_parts', $module))
-				{
-					$module_data['module_parts'] = $module['module_parts'];
-				}
-
-				$this->saveModuleData($module_data);
-				\Artisan::call('module:migrate', ['module' => $module['slug']]);
+				$this->changeTheme($module['slug']);
 			}
 		}
 		return true;
+	}
+
+	/**
+	 * Scan for modules whose data isn't stored in
+	 * storage and store them.
+	 * @return void.
+	 */
+	public function saveModule($module)
+	{	
+		$module_data = array();
+		if( ! CoreModule::where('module_key', '=', $module['slug'])->count())
+		{
+			$module_data['module_name']      = $module['name'];
+			$module_data['module_key']       = $module['slug'];
+			$module_data['module_version']   = $module['version'];
+			$module_data['module_type']      = $module['type'];
+
+			if(array_key_exists('module_parts', $module))
+			{
+				$module_data['module_parts'] = $module['module_parts'];
+			}
+
+			$this->saveModuleData($module_data);
+			\Artisan::call('module:migrate', ['module' => $module['slug']]);
+		}
 	}
 }

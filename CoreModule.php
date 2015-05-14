@@ -14,7 +14,8 @@ class CoreModule extends Model {
 
 		CoreModule::deleting(function($module)
 		{
-			CoreSettings::where('moduel_key', '=', $module->module_key)->delete();
+			CoreSetting::where('module_key', '=', $module->module_key)->delete();
+			CoreModulePart::where('module_key', '=', $module->module_key)->delete();
 		});
 	}
 }

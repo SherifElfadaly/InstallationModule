@@ -150,7 +150,7 @@
 			<div class="col-xs-12">
 				<div class="col-md-12 well text-center">
 					<h1 class="text-center"> Enter Admin Informations</h1>
-					<form class="form-horizontal col-sm-8 col-sm-offset-2" id="step-2_form" method="post" action="{{ url('Installation/setup/saveadmin') }}">
+					<form class="form-horizontal col-sm-8 col-sm-offset-2" id="step-2_form" method="post" action="{{ url('admin/Installation/setup/saveadmin') }}">
 						<input type="hidden" name="_token" value="{{ csrf_token() }}">
 						<input type="hidden" name="user_groups[]" value="1">
 
@@ -207,7 +207,7 @@
 			<div class="col-md-12 well text-center">
 				<h1 class="text-center"> Finish</h1>
 				<div class="col-sm-8 col-sm-offset-2">
-					<a href="{{ url('/admin') }}" class="btn btn-primary btn-lg">Goto admin panel</a>
+					<a href="{{ url('admin') }}" class="btn btn-primary btn-lg">Goto admin panel</a>
 				</div>
 			</div>
 		</div>

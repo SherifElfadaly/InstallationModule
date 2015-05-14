@@ -10,7 +10,7 @@
 | and give it the Closure to execute when that URI is requested.
 |
 */
-Route::group(['prefix' => 'Installation'], function() {
+Route::group(['prefix' => 'admin/Installation'], function() {
 	Route::controllers([
 		'setup'          => 'SetupController',
 		'modulesettings' => 'ModuleSettingsController',
