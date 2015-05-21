@@ -11,7 +11,7 @@ class SetupController extends Controller {
 	 */
 	public function __construct()
 	{
-		if(file_exists(base_path('.env')) && \CMS::groups()->adminCount() > 0)
+		if (file_exists(base_path('.env')) && \CMS::groups()->adminCount() > 0)
 		{
 			$this->middleware('AclAuthenticate');
 		}
@@ -48,7 +48,7 @@ class SetupController extends Controller {
 				}
 			}
 
-			if($admin = \CMS::users()->find('1'))
+			if (\Auth::check() && $admin = \CMS::users()->find(\Auth::user()->id))
 			{
 				$setupData->name  = $admin->name;
 				$setupData->email = $admin->email;
@@ -58,30 +58,30 @@ class SetupController extends Controller {
 	}
 
 	/**
-	 * Save the setup settings.
+	 * Create new env file with the given configurations then
+	 * check for the connection.
 	 *
+	 * @param  SetupFormRequest $request
 	 * @return Response
 	 */
 	public function postIndex(SetupFormRequest $request)
 	{
-		$key     = md5(time() . uniqid());
-		$content = "APP_ENV=local
-APP_DEBUG=true
-APP_KEY={$key}
+		$key     = ['key' => md5(time() . uniqid())];
+		$content = view('Installation::setup.parts.env', array_merge($request->all(), $key))->render();
 
-DB_HOST={$request->get('host_name')}
-DB_DATABASE={$request->get('db_name')}
-DB_USERNAME={$request->get('db_user')}
-DB_PASSWORD={$request->get('db_password')}
-
-CACHE_DRIVER=file
-SESSION_DRIVER=file";
-
+		/**
+		 * save the env file with the new configurations.
+		 */
 		file_put_contents(base_path('.env'), $content);
+
+		/**
+		 * Setup the configuration for the db connection.
+		 */
 		\Config::set('database.connections.mysql.host', $request->get('host_name'));
 		\Config::set('database.connections.mysql.database', $request->get('db_name'));
 		\Config::set('database.connections.mysql.username', $request->get('db_user'));
 		\Config::set('database.connections.mysql.password', $request->get('db_password'));
+
 		if(\DB::connection())
 		{
 			return 	redirect()->back()->with('step', '2');
@@ -89,16 +89,17 @@ SESSION_DRIVER=file";
 	}
 
 	/**
-	 * Save the setup settings.
+	 * If the user is logged in then update his data
+	 * and if not then create new admin.
 	 *
+	 * @param  SetupAdminFormRequest $request
 	 * @return Response
 	 */
 	public function postSaveadmin(SetupAdminFormRequest $request)
 	{	
-		$admin = \CMS::users()->first('email', $request->get('email'));
-		if ($admin !== false)
+		if (\Auth::check() && $admin = \CMS::users()->find(\Auth::user()->id))
 		{
-			\CMS::users()->update($admin->id, $request->all());	
+			\CMS::users()->update(\Auth::user()->id, $request->all());	
 		}
 		else
 		{

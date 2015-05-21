@@ -48,7 +48,7 @@ class ModuleController extends BaseController {
 		$message = 'Your module already exists and up to date';
 		if (is_array($result)) 
 		{
-			$message = 'Your module ' . $slug . ' had been Updated From ' . $result['oldVersion'] . ' to ' . $result['newVersion'];
+			$message = 'Your module ' . $slug . ' had been updated From ' . $result['oldVersion'] . ' to ' . $result['newVersion'];
 		}
 		elseif ($result == 404)
 		{
@@ -90,7 +90,7 @@ class ModuleController extends BaseController {
 		}
 		elseif (is_array($result)) 
 		{
-			$message = 'Your module had been Updated From ' . $result['oldVersion'] . ' to ' . $result['newVersion'];
+			$message = 'Your module had been updated From ' . $result['oldVersion'] . ' to ' . $result['newVersion'];
 		}
 		elseif ($result == 404)
 		{

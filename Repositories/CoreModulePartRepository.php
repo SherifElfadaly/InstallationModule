@@ -3,21 +3,31 @@
 use App\AbstractRepositories\AbstractRepository;
 
 class CoreModulePartRepository extends AbstractRepository
-{
+{	
+	/**
+	 * Return the model full namespace.
+	 * 
+	 * @return string
+	 */
 	protected function getModel()
 	{
 		return 'App\Modules\Installation\CoreModulePart';
 	}
 
+	/**
+	 * Return the module relations.
+	 * 
+	 * @return array
+	 */
 	protected function getRelations()
 	{
 		return [];
 	}
 
 	/**
-	 * Get module part belongs to module
-	 * data from storage.
-	 * @return Module data.
+	 * Get module part belongs to module from storage.
+	 * 
+	 * @return object.
 	 */
 	public function getModuleParts($slug)
 	{
@@ -26,7 +36,8 @@ class CoreModulePartRepository extends AbstractRepository
 
 	/**
 	 * Get module part from storage.
-	 * @return Module data.
+	 * 
+	 * @return object.
 	 */
 	public function getModulePart($slug)
 	{
@@ -34,9 +45,10 @@ class CoreModulePartRepository extends AbstractRepository
 	}
 
 	/**
-	 * Save the newly installed module parts to
-	 * storage.
-	 * @param  array $data Module parts data
+	 * Save the newly installed module parts to storage.
+	 *
+	 * @param  string $slug
+	 * @param  array  $data
 	 * @return void.
 	 */
 	public function saveModuleParts($slug, $data)

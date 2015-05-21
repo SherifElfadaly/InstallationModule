@@ -23,7 +23,6 @@ class CreateCoreSettingsTable extends Migration
 				$table->string('select_values', 255)->index();
 				$table->string('href', 255)->index();
 				$table->string('module_key', 255)->index();
-				
 				$table->timestamps();
 			});
 		}

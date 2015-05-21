@@ -33,9 +33,9 @@
 					<div class="col-sm-7">
 						@if($setting->input_type == 'link')
 							<a 
-							href        ="{{ $setting->href }}" 
-							class       ="btn btn-default btn-block" 
-							id          ="{{ $setting->key }}" 
+							href  ="{{ $setting->href }}" 
+							class ="btn btn-default btn-block" 
+							id    ="{{ $setting->key }}" 
 							>
 							Send
 							</a>
@@ -102,9 +102,9 @@
 		@foreach($module->moduleSettings as $setting)
 			@if($setting->input_type == 'file')
 
-				<div class="form-group">
-					<label for="inputEmail3" class="col-sm-3 control-label">{{ $setting->key }}</label>
-					{!! $module->mediaLibrary !!}
+				<div class="form-group row">
+					<label>{{ $setting->key }}</label><br>
+					{!! $setting->mediaLibrary !!}
 					@include('Installation::modulesettings.assets.addsettingsfile')
 				</div>
 

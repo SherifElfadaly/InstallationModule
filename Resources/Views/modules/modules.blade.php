@@ -31,17 +31,27 @@
 					<td>{{ $module['version'] }}</td>
 					<td>{{ $module['type'] }}</td>
 					<td>
-						<a 
-						class ="btn btn-default" 
-						href  ='{{ url("admin/Installation/enabled/{$module['slug']}") }}' 
-						role  ="button"
-						>
-						@if($module['enabled'])
-							Disable
-						@else
+						@if($module['type'] === 'theme' && ! $module['enabled'])
+							<a 
+							class ="btn btn-default" 
+							href  ='{{ url("admin/Installation/enabled/{$module['slug']}") }}' 
+							role  ="button"
+							>
 							Enable
+							</a>
+						@elseif($module['type'] !== 'theme')
+							<a 
+							class ="btn btn-default" 
+							href  ='{{ url("admin/Installation/enabled/{$module['slug']}") }}' 
+							role  ="button"
+							>
+							@if($module['enabled'])
+								Disable
+							@else
+								Enable
+							@endif
+							</a>
 						@endif
-						</a>
 
 						<a 
 						class ="btn btn-default" 
@@ -71,13 +81,15 @@
 							</a>
 						@endif
 						
-						<a 
-						class ="btn btn-default" 
-						href  ='{{ url("admin/Installation/moduleparts/{$module['slug']}") }}'
-						role  ="button"
-						>
-						Module Parts
-						</a>
+						@if($module['moduleParts']->count())
+							<a 
+							class ="btn btn-default" 
+							href  ='{{ url("admin/Installation/moduleparts/{$module['slug']}") }}'
+							role  ="button"
+							>
+							Module Parts
+							</a>
+						@endif
 					</td>
 				</tr>
 				@endforeach

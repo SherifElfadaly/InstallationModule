@@ -1,10 +1,11 @@
 <script type="text/javascript">
 	$(document).ready(function () {
-		{{ $module->mediaLibraryName }}.init(function(checkedValues)
+		{{ $setting->mediaLibraryName }}.init(function(checkedValues)
 		{	
+			url        = '{{ url("admin/Installation/modulesettings/addfiles", $setting->module_key) }}';
 			settingKey = '{{ $setting->key }}';
 			$.ajax({
-				url         : window.location,
+				url         : url,
 				type        : 'GET',
 				data        : {'ids': checkedValues, 'settingKey' : settingKey},
 				success     : function(data)

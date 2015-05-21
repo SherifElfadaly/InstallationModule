@@ -21,39 +21,45 @@ class ModuleSettingsController extends BaseController {
 	}
 
 	/**
-	 * Display the settings and handle the ajax request
-	 * for save the file type settings.
+	 * Display the settings.
 	 * 
-	 * @param  int  $module_key
+	 * @param  string  $module_key
 	 * @return Response
 	 */
-	public function getShow(Request $request, $module_key)
+	public function getShow($module_key)
 	{
-		if($request->ajax()) 
-		{
-			$data = [$request->get('settingKey') => serialize($request->get('ids'))];
-			\CMS::coreModuleSettings()->saveSetting($data, $module_key);
-
-			return 'done';
-		}
-
-		$module = \CMS::coreModuleSettings()->find($module_key);
+		$module = \CMS::coreModules()->getModule($module_key);
 		foreach ($module->moduleSettings as $settings) 
 		{
 			if ($settings->input_type == 'file') 
 			{
-				$module->mediaLibrary     = \CMS::galleries()->getMediaLibrary('all', false, $settings->name . 'mediaLibrary');
-				$module->mediaLibraryName = $settings->name . 'mediaLibrary';
+				$settings->mediaLibrary     = \CMS::galleries()->getMediaLibrary('all', false, $settings->name . 'mediaLibrary');
+				$settings->mediaLibraryName = $settings->name . 'mediaLibrary';
 			}
 		}
 		return view('Installation::modulesettings.modulesettings', compact('module'));
 	}
 
 	/**
+	 * Handle the request for save the settings of type file.
+	 *
+	 * @param  Request $request
+	 * @param  string  $module_key
+	 * @return Response
+	 */
+	public function getAddfiles(Request $request, $module_key)
+	{
+		$data = [$request->get('settingKey') => serialize($request->get('ids'))];
+		\CMS::coreModuleSettings()->saveSetting($data, $module_key);
+
+		return 	redirect()->back();
+	}
+
+	/**
 	 * Store the module settings in storage.
 	 *
-	 * @param  Request  $request the request holding the form data
-	 * @param  int  $module_key
+	 * @param  Request  $request
+	 * @param  string   $module_key
 	 * @return Response
 	 */
 	public function postShow(Request $request, $module_key)
@@ -70,6 +76,6 @@ class ModuleSettingsController extends BaseController {
 
 		\CMS::coreModuleSettings()->saveSetting($request->except('_token'), $module_key);
 
-		return 	redirect()->back()->with('message', 'Your settings had been created');
+		return 	redirect()->back()->with('message', 'Your settings had been saved');
 	}
 }

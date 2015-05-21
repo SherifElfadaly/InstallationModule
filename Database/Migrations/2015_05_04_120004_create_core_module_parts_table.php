@@ -18,7 +18,6 @@ class CreateCoreModulePartsTable extends Migration
 				$table->bigIncrements('id');
 				$table->string('part_key', 100)->index();
 				$table->string('module_key', 255)->index();
-				
 				$table->timestamps();
 			});
 		}

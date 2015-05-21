@@ -6,5 +6,6 @@
     "repo_link": "https:\/\/github.com\/SherifElfadaly\/MarvelModules.git",
     "type" : "plugin",
     "enabled": true,
-    "module_parts": ["Modules"]
+    "module_parts": ["Modules"],
+    "order" : 1
 }
