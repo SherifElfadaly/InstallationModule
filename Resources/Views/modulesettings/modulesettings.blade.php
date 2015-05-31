@@ -48,7 +48,7 @@
 
 						@elseif($setting->input_type == 'multiselect')
 
-							<select multiple name="{{ $setting->key }}[]" class="form-control">
+							<select multiple name="{{ $setting->key }}[value][]" class="form-control">
 								@foreach($setting->select_values as $select_value)
 									<option 
 									value ="{{ $select_value }}"
@@ -63,7 +63,7 @@
 
 						@elseif($setting->input_type == 'select')
 
-							<select name="{{ $setting->key }}[]" class="form-control">
+							<select name="{{ $setting->key }}[value][]" class="form-control">
 								@foreach($setting->select_values as $select_value)
 									<option 
 									value ="{{ $select_value }}"
@@ -75,19 +75,47 @@
 									</option>
 								@endforeach
 							</select>
+						
+						@elseif($setting->input_type == 'text')
+							
+							<div class="col-sm-9">
+								<input 
+								type        ="{{ $setting->input_type }}" 
+								class       ="form-control" 
+								id          ="{{ $setting->key }}" 
+								name        ="{{ $setting->key }}[value]" 
+								placeholder ="{{ $setting->key }}" 
+								value       ="{{ $setting->value }}"
+								>
+							</div>
+							<div class="col-sm-2">
+								@if(\CMS::permissions()->can('show', 'LanguageContents'))
+									<a 
+									class ="btn btn-default" 
+									href  ='{{ url("admin/language/languagecontents/show/$module->module_key/$setting->id") }}'
+									role  ="button">
+									Translations
+									</a> 
+								@endif
+							</div>
 
 						@else
+
 							<input 
 							type        ="{{ $setting->input_type }}" 
 							class       ="form-control" 
 							id          ="{{ $setting->key }}" 
-							name        ="{{ $setting->key }}" 
+							name        ="{{ $setting->key }}[value]" 
 							placeholder ="{{ $setting->key }}" 
 							value       ="{{ $setting->value }}"
 							>
+
 						@endif
 					</div>
 				</div>
+				@if($setting->input_type !== 'file')
+					<input type="hidden" name="{{ $setting->key }}[type]" value="{{ $setting->input_type }}">
+				@endif
 			@endforeach
 
 			<div class="form-group">
@@ -95,7 +123,6 @@
 					<button type="submit" id="user_submit" class="btn btn-default">Submit</button>
 				</div>
 			</div>
-
 		</form>
 	</div>
 	<div class="col-sm-3">

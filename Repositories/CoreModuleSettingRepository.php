@@ -33,9 +33,16 @@ class CoreModuleSettingRepository extends AbstractRepository
 	 * @return array if the setting type is select ,
 	 *         multi select or file else string.
 	 */
-	public function getSettingValuByKey($key, $module_key)
+	public function getSettingValuByKey($key, $module_key, $language = false)
 	{
-		return $this->model->where('key', '=', $key)->where('module_key', '=', $module_key)->first()->value;
+		$moduleSetting = $this->model->where('key', '=', $key)->where('module_key', '=', $module_key)->first();
+		if (is_null($moduleSetting)) return '';
+
+		if ($moduleSetting->input_type == 'text') 
+		{
+			return \CMS::languageContents()->getTranslations($moduleSetting->id, $module_key, $language, 'value');
+		}
+		return $moduleSetting->value;
 	}
 
 	/**
@@ -45,9 +52,17 @@ class CoreModuleSettingRepository extends AbstractRepository
 	 * @param  string $module_key
 	 * @return collection.
 	 */
-	public function getModuleSettings($module_key)
+	public function getModuleSettings($module_key, $language = false)
 	{
-		return $this->findBy('module_key', $module_key);
+		$moduleSettings =  $this->findBy('module_key', $module_key);
+		foreach ($moduleSettings as $moduleSetting) 
+		{
+			if ($moduleSetting->input_type == 'text') 
+			{
+				$moduleSetting->value = \CMS::languageContents()->getTranslations($moduleSetting->id, $module_key, $language, 'value');
+			}
+		}
+		return $moduleSettings;
 	}
 
 	/**
@@ -58,17 +73,24 @@ class CoreModuleSettingRepository extends AbstractRepository
 	 * @return void.
 	 */
 	public function saveSetting($data, $module_key)
-	{	
+	{		
 		foreach ($data as $key => $value) 
 		{
-			if (is_array($value)) $value = serialize($value);
-
 			$setting = $this->model->where('key', '=', str_replace('_', ' ', $key))->
-						             where('module_key', '=', $module_key)->
-						             first();
+				                     where('module_key', '=', $module_key)->
+				                     first();
+			if ($value['type'] == 'text') 
+			{
+				\CMS::languageContents()->insertLanguageContent(['value' => $value['value']], 
+					                      $module_key, $setting->id);
+			}
+			else
+			{
+				if (is_array($value['value'])) $value['value'] = serialize($value['value']);
 
-			$setting->value = $value;
-			$setting->save();
+				$setting->value = $value['value'];
+				$setting->save();
+			}
 		}
 	}
 }

@@ -288,6 +288,7 @@ class CoreModuleRepository extends AbstractRepository
 		{
 			$this->disapleAllThemes();
 			\Module::enable($slug);
+			\Artisan::call('module:migrate', ['module' => $slug]);
 		}
 	}
 
@@ -366,36 +367,33 @@ class CoreModuleRepository extends AbstractRepository
 	 */
 	public function saveModule($module, $update = false)
 	{	
+		
 		if ($module['slug'] === 'installation') 
 		{
 			\Artisan::call('module:migrate', ['module' => $module['slug']]);
-			if (array_key_exists('module_parts', $module))
-			{
-				\CMS::coreModuleParts()->saveModuleParts($module['slug'], $module['module_parts']);
-			}
 		}
-		else
+		if ( ! $this->first('module_key', $module['slug'])) 
 		{
 			if (array_key_exists('module_parts', $module))
-			{
+			{	
 				\CMS::coreModuleParts()->saveModuleParts($module['slug'], $module['module_parts']);
 			}
 			\Artisan::call('module:migrate', ['module' => $module['slug']]);	
-		}
-		
-		$module_data 					 = array();
-		$module_data['module_name']      = $module['name'];
-		$module_data['module_key']       = $module['slug'];
-		$module_data['module_version']   = $module['version'];
-		$module_data['module_type']      = $module['type'];
 
-		if ($this->findBy('module_key', $module['slug'])->count() === 0)
-		{
-			$this->create($module_data);
-		}
-		elseif ($update)
-		{
-			$this->update($module['slug'], $module_data, 'module_key');
+			$module_data 					 = array();
+			$module_data['module_name']      = $module['name'];
+			$module_data['module_key']       = $module['slug'];
+			$module_data['module_version']   = $module['version'];
+			$module_data['module_type']      = $module['type'];
+
+			if ($this->findBy('module_key', $module['slug'])->count() === 0)
+			{
+				$this->create($module_data);
+			}
+			elseif ($update)
+			{
+				$this->update($module['slug'], $module_data, 'module_key');
+			}
 		}
 	}
 
