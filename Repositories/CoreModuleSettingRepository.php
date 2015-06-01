@@ -36,13 +36,7 @@ class CoreModuleSettingRepository extends AbstractRepository
 	public function getSettingValuByKey($key, $module_key, $language = false)
 	{
 		$moduleSetting = $this->model->where('key', '=', $key)->where('module_key', '=', $module_key)->first();
-		if (is_null($moduleSetting)) return '';
-
-		if ($moduleSetting->input_type == 'text') 
-		{
-			return \CMS::languageContents()->getTranslations($moduleSetting->id, $module_key, $language, 'value');
-		}
-		return $moduleSetting->value;
+		return is_null($moduleSetting) ? '' : $moduleSetting->value;
 	}
 
 	/**
@@ -55,13 +49,6 @@ class CoreModuleSettingRepository extends AbstractRepository
 	public function getModuleSettings($module_key, $language = false)
 	{
 		$moduleSettings =  $this->findBy('module_key', $module_key);
-		foreach ($moduleSettings as $moduleSetting) 
-		{
-			if ($moduleSetting->input_type == 'text') 
-			{
-				$moduleSetting->value = \CMS::languageContents()->getTranslations($moduleSetting->id, $module_key, $language, 'value');
-			}
-		}
 		return $moduleSettings;
 	}
 
@@ -79,18 +66,10 @@ class CoreModuleSettingRepository extends AbstractRepository
 			$setting = $this->model->where('key', '=', str_replace('_', ' ', $key))->
 				                     where('module_key', '=', $module_key)->
 				                     first();
-			if ($value['type'] == 'text') 
-			{
-				\CMS::languageContents()->insertLanguageContent(['value' => $value['value']], 
-					                      $module_key, $setting->id);
-			}
-			else
-			{
-				if (is_array($value['value'])) $value['value'] = serialize($value['value']);
+			if (is_array($value['value'])) $value['value'] = serialize($value['value']);
 
-				$setting->value = $value['value'];
-				$setting->save();
-			}
+			$setting->value = $value['value'];
+			$setting->save();
 		}
 	}
 }

@@ -75,30 +75,7 @@
 									</option>
 								@endforeach
 							</select>
-						
-						@elseif($setting->input_type == 'text')
 							
-							<div class="col-sm-9">
-								<input 
-								type        ="{{ $setting->input_type }}" 
-								class       ="form-control" 
-								id          ="{{ $setting->key }}" 
-								name        ="{{ $setting->key }}[value]" 
-								placeholder ="{{ $setting->key }}" 
-								value       ="{{ $setting->value }}"
-								>
-							</div>
-							<div class="col-sm-2">
-								@if(\CMS::permissions()->can('show', 'LanguageContents'))
-									<a 
-									class ="btn btn-default" 
-									href  ='{{ url("admin/language/languagecontents/show/$module->module_key/$setting->id") }}'
-									role  ="button">
-									Translations
-									</a> 
-								@endif
-							</div>
-
 						@else
 
 							<input 
