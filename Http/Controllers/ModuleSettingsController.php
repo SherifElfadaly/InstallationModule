@@ -1,6 +1,6 @@
 <?php namespace App\Modules\Installation\Http\Controllers;
 
-use App\Http\Controllers\BaseController;
+use App\Modules\Core\Http\Controllers\BaseController;
 use Illuminate\Http\Request;
 
 class ModuleSettingsController extends BaseController {

@@ -1,6 +1,6 @@
 <?php namespace App\Modules\Installation\Repositories;
 
-use App\AbstractRepositories\AbstractRepository;
+use App\Modules\Core\AbstractRepositories\AbstractRepository;
 
 class CoreModuleSettingRepository extends AbstractRepository
 {	
