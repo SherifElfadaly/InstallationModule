@@ -1,9 +1,9 @@
 {
     "name": "Installation",
     "slug": "installation",
-    "version": "1.03",
+    "version": "1.0",
     "description": "This is the description for the Installation module.",
-    "repo_link": "https:\/\/github.com\/SherifElfadaly\/MarvelModules.git",
+    "repo_link": "https://github.com/SherifElfadaly/InstallationModule.git",
     "type" : "plugin",
     "enabled": true,
     "module_parts": ["Modules"],
